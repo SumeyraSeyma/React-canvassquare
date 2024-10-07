@@ -40,6 +40,12 @@ function Canvas() {
     };
   }, []);
 
+  const clearCanvas = () => {
+    const canvas = myPicsRef.current;
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
   function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
     context.strokeStyle = 'black';
@@ -52,7 +58,10 @@ function Canvas() {
 
   return (
     <div>
+       <div className='flex'>
       <h1>Drawing with mouse events</h1>
+      <button onClick={clearCanvas}>Clear Canvas</button>
+      </div>
       <canvas ref={myPicsRef} id="myPics" width="560" height="360"></canvas>
     </div>
   );
