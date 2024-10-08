@@ -72,7 +72,8 @@ function Canvas() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-xl font-bold mb-4">Drawing with mouse events</h1>
-      <div className="flex space-x-4 mb-4">
+      <div className="flex space-x-4 mb-4" 
+      id='buttons'>
         <button className="button-77" onClick={clearCanvas}>Clear Canvas</button>
         <button className="button-78" onClick={() => setDrawMode('square')}>Draw Square</button>
         <button className="button-79" onClick={() => setDrawMode(null)}>Draw Line</button>
