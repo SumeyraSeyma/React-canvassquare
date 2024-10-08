@@ -78,7 +78,7 @@ function Canvas() {
         <button className="button-78" onClick={() => setDrawMode('square')}>Draw Square</button>
         <button className="button-79" onClick={() => setDrawMode(null)}>Draw Line</button>
       </div>
-      <canvas ref={canvasRef} width="560" height="360" className="border border-gray-300"></canvas>
+      <canvas ref={canvasRef} width="560" height="360" className="border border-gray-300 shadow-xl"></canvas>
     </div>
   );
 }
