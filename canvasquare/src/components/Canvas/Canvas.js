@@ -54,11 +54,13 @@ function Canvas() {
 
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
 
     return () => {
       canvas.removeEventListener('mousedown', startDrawing);
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mouseup', stopDrawing);
+      canvas.removeEventListener('mouseleave', stopDrawing);
     };
   }, [isDrawing, startPoint, drawMode]);
 
@@ -73,7 +75,7 @@ function Canvas() {
       <div className="flex space-x-4 mb-4">
         <button className="button-77" onClick={clearCanvas}>Clear Canvas</button>
         <button className="button-78" onClick={() => setDrawMode('square')}>Draw Square</button>
-        <button className="button-79" onClick={() => setDrawMode(null)}>Free Draw</button>
+        <button className="button-79" onClick={() => setDrawMode(null)}>Draw Line</button>
       </div>
       <canvas ref={canvasRef} width="560" height="360" className="border border-gray-300"></canvas>
     </div>
