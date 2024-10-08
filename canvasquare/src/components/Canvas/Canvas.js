@@ -87,7 +87,6 @@ function Canvas() {
 
   const clearCanvas = () => {
     setPreviousSquares([]); // Tüm kaydedilmiş kareleri temizle
-    setDrawMode(null); // Modu da sıfırla
   };
 
   useEffect(() => {
