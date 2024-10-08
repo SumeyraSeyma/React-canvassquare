@@ -5,16 +5,15 @@ function Canvas() {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
-  const [drawMode, setDrawMode] = useState(null); // 'square' veya null olabilir
-  const [previousSquares, setPreviousSquares] = useState([]); // Kareleri saklamak için state
+  const [drawMode, setDrawMode] = useState(null);
+  const [previousSquares, setPreviousSquares] = useState([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
-    // Canvas'ı temizle ve önceki tüm kareleri tekrar çiz
     const redraw = () => {
-      context.clearRect(0, 0, canvas.width, canvas.height); // Temizleme işlemi
+      context.clearRect(0, 0, canvas.width, canvas.height);
       previousSquares.forEach(square => {
         context.beginPath();
         context.strokeStyle = 'black';
@@ -27,13 +26,31 @@ function Canvas() {
 
     redraw();
 
+    const getTouchPosition = (e) => {
+      const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0] || e.changedTouches[0];
+  const scaleX = canvas.width / rect.width;   // Gerçek canvas genişliği ile stil genişliği arasındaki oran
+  const scaleY = canvas.height / rect.height; // Gerçek canvas yüksekliği ile stil yüksekliği arasındaki oran
+  return {
+    x: (touch.clientX - rect.left) * scaleX, // Dokunma X koordinatını ölçeklendir
+    y: (touch.clientY - rect.top) * scaleY   // Dokunma Y koordinatını ölçeklendir
+  };
+};
+
     const draw = (e) => {
       if (!isDrawing || drawMode !== 'square') return;
+      let x, y;
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      if (e.type.includes('mouse')) {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+      } else { // Touch olayları için
+        const touchPos = getTouchPosition(e);
+        x = touchPos.x;
+        y = touchPos.y;
+      }
 
-      redraw(); // Her çizimde önceki çizimleri yeniden çiz
+      redraw();
 
       context.beginPath();
       context.strokeStyle = 'black';
@@ -44,11 +61,19 @@ function Canvas() {
     };
 
     const startDrawing = (e) => {
-      if (drawMode === 'square') { // Sadece drawMode 'square' ise çizime başla
+      if (drawMode === 'square') {
+        let x, y;
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        if (x >= 0 && y >= 0 && x <= canvas.width && y <= canvas.height) { // Sadece canvas içindeyse çizime başla
+        if (e.type.includes('mouse')) {
+          x = e.clientX - rect.left;
+          y = e.clientY - rect.top;
+        } else { // Touch olayları için
+          const touchPos = getTouchPosition(e);
+          x = touchPos.x;
+          y = touchPos.y;
+        }
+
+        if (x >= 0 && y >= 0 && x <= canvas.width && y <= canvas.height) {
           setStartPoint({ x, y });
           setIsDrawing(true);
         }
@@ -57,11 +82,17 @@ function Canvas() {
 
     const stopDrawing = (e) => {
       if (drawMode === 'square' && isDrawing) {
+        let x, y;
         const rect = canvas.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
+        if (e.type.includes('mouse')) {
+          x = e.clientX - rect.left;
+          y = e.clientY - rect.top;
+        } else { // Touch olayları için
+          const touchPos = getTouchPosition(e);
+          x = touchPos.x;
+          y = touchPos.y;
+        }
 
-        // Canvas sınırları dışına çıkarsa konumu sınırlıyoruz
         if (x < 0) x = 0;
         if (y < 0) y = 0;
         if (x > canvas.width) x = canvas.width;
@@ -75,24 +106,31 @@ function Canvas() {
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mouseup', stopDrawing);
-    document.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchcancel', stopDrawing);
 
     return () => {
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mousedown', startDrawing);
       canvas.removeEventListener('mouseup', stopDrawing);
-      document.removeEventListener('mouseup', stopDrawing);
+      canvas.removeEventListener('mouseleave', stopDrawing);
+      canvas.removeEventListener('touchmove', draw);
+      canvas.removeEventListener('touchstart', startDrawing);
+      canvas.removeEventListener('touchend', stopDrawing);
+      canvas.removeEventListener('touchcancel', stopDrawing);
     };
   }, [isDrawing, startPoint, drawMode, previousSquares]);
 
   const clearCanvas = () => {
-    setPreviousSquares([]); // Tüm kaydedilmiş kareleri temizle
+    setPreviousSquares([]);
   };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
-    // previousSquares her güncellendiğinde canvas'ı temizleyip tekrar çiz
     context.clearRect(0, 0, canvas.width, canvas.height);
     previousSquares.forEach(square => {
       context.beginPath();
@@ -102,10 +140,10 @@ function Canvas() {
       context.stroke();
       context.closePath();
     });
-  }, [previousSquares]); // previousSquares her değiştiğinde tetiklenir
+  }, [previousSquares]);
 
   const undo = () => {
-    setPreviousSquares(prev => prev.slice(0, -1)); // Son eklenen kareyi sil
+    setPreviousSquares(prev => prev.slice(0, -1));
   };
 
   return (
@@ -122,3 +160,4 @@ function Canvas() {
 }
 
 export default Canvas;
+
