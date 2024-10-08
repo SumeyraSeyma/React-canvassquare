@@ -47,12 +47,12 @@ function Canvas() {
       }
     };
 
-    const stopDrawing = () => {
+    const stopDrawing = (e) => {
+      draw(e);
       setIsDrawing(false);
     };
 
     canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', stopDrawing);
 
     return () => {
